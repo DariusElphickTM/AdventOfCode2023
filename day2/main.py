@@ -4,37 +4,33 @@ import sys
 import re
 
 def main():
+  actual_red = int(sys.argv[2])
+  actual_green = int(sys.argv[3])
+  actual_blue = int(sys.argv[4])
   input = read_file(sys.argv[1])
   print("Input", input)
-  
-  calibrationValues = []
-  for line in input:
-    calibrationValues.append(process_line(line))
-  print(calibrationValues)
-  
-  answer = 0
-  for line in calibrationValues:
-    answer = answer + int(line)
-  print(answer)
-  
-def process_line(line):
-  numbers = re.findall(r'(?=(\d|one|two|three|four|five|six|seven|eight|nine))', line)
-  number_map = {
-    'one': '1',
-    'two': '2',
-    'three': '3',
-    'four': '4',
-    'five': '5',
-    'six': '6',
-    'seven': '7',
-    'eight': '8',
-    'nine': '9',
+  games = list(map(interpret_game, input))
+  print("Games", games)
+  count = 0
+  for game in games:
+    count = count + (game['blue'] * game['green'] * game['red'])
+    """if(actual_blue >= game['blue'] and actual_green >= game['green'] and actual_red >= game['red']):
+      print("Possible", game['id'])
+      count = count + int(game['id'])"""
+  print("Count", count)
+
+def interpret_game(line):
+  game = re.split(r'\:', line)
+  game[0] = re.sub('Game ', '', game[0])
+  reds = list(map(int, re.findall(r'\d+(?= red)', game[1])))
+  blues = list(map(int, re.findall(r'\d+(?= blue)', game[1])))
+  greens = list(map(int, re.findall(r'\d+(?= green)', game[1])))
+  return {
+    'id': game[0],
+    'red': max(reds),
+    'green': max(greens),
+    'blue': max(blues)
   }
-  for i in range(len(numbers)):
-    number = numbers[i]
-    if(number in number_map):
-      numbers[i] = number_map[number]
-  return "%s%s" % (numbers[0], numbers[-1])
   
 def read_file(filename):
   file = open(filename, 'r')
