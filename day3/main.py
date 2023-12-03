@@ -2,6 +2,7 @@
 
 import sys
 import re
+import functools
 
 def main():
   input = read_file(sys.argv[1])
@@ -26,6 +27,8 @@ def get_parts(symbol_locations, number_locations):
   for i, line in enumerate(symbol_locations):
     for symbol in line:
       
+      matches = []
+      
       if i > 0:
         print("Above line", symbol)
         numbers_above = number_locations[i - 1]
@@ -34,7 +37,7 @@ def get_parts(symbol_locations, number_locations):
           print("Comparing number", number)
           if (symbol.start() == number.end()) or (symbol.end() == number.start()) or (symbol.start() >= number.start() and symbol.start() <= number.end()):
             print("MATCH ABOVE!")
-            parts.append(number[0])
+            matches.append(number[0])
             
       print("Same line", symbol)
       numbers_on_same_line = number_locations[i]
@@ -43,7 +46,7 @@ def get_parts(symbol_locations, number_locations):
         print("Comparing number", number)
         if (symbol.start() == number.end()) or (symbol.end() == number.start()):
           print("MATCH ON LINE!")
-          parts.append(number[0])
+          matches.append(number[0])
           
       if i < len(symbol_locations) - 1:
         print("Below line", symbol)
@@ -53,7 +56,10 @@ def get_parts(symbol_locations, number_locations):
           print("Comparing number", number)
           if (symbol.start() == number.end()) or (symbol.end() == number.start()) or (symbol.start() >= number.start() and symbol.start() <= number.end()):
             print("MATCH BELOW!")
-            parts.append(number[0])
+            matches.append(number[0])
+            
+      if len(matches) == 2 and symbol[0] == '*':
+        parts.append(functools.reduce(lambda a, b: int(a) * int(b), matches))
         
   return parts
   
